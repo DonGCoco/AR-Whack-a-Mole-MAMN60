@@ -8,20 +8,21 @@ The user scans a horizontal surface such as a table. When a valid plane is found
 
 ## Target stack
 
-- Unity 2022.3 LTS
-- AR Foundation 5.0.6
-- Apple ARKit XR Plugin 5.0.6
+- Unity 6.3 LTS (6000.3.10f1)
+- AR Foundation 6.3.1
+- Apple ARKit XR Plugin 6.3.1
+- XR Plug-in Management 4.5.3
 - iOS / iPhone
 
-Unity documents AR Foundation 5.0.6 and ARKit XR Plugin 5.0.6 as released packages for Unity 2022.3. Keep the AR Foundation and provider plug-in versions matched.
+AR Foundation and the ARKit provider plug-in are kept on matching versions.
 
 ## Quick start
 
-1. Clone this repository and open it with Unity 2022.3 LTS.
+1. Clone this repository and open it with **Unity 6.3 LTS (6000.3.10f1)**.
 2. Wait for Package Manager to finish resolving packages.
 3. In Unity, run **MAMN60 > Setup AR Whack-a-Mole Scene**.
 4. Run **MAMN60 > Configure iOS + ARKit**.
-5. Open **File > Build Settings**, choose **iOS**, and click **Switch Platform** if iOS is not already active.
+5. Open **File > Build Profiles** (or Build Settings, depending on the editor layout), select **iOS**, and switch the active platform if needed.
 6. Confirm **Project Settings > XR Plug-in Management > iOS > ARKit** is enabled.
 7. Build the scene to Xcode, choose your signing team, then run it on an ARKit-capable iPhone.
 
