@@ -64,6 +64,17 @@ public static class MAMN60Setup
 
         camera.tag = "MainCamera";
 
+        // Explicitly guarantee that the AR camera feed is requested and rendered.
+        // XR Origin (Mobile AR) normally creates these, but adding them here makes
+        // the generated scene robust across AR Foundation / Unity editor versions.
+        ARCameraManager cameraManager = camera.GetComponent<ARCameraManager>();
+        if (cameraManager == null)
+            cameraManager = camera.gameObject.AddComponent<ARCameraManager>();
+
+        ARCameraBackground cameraBackground = camera.GetComponent<ARCameraBackground>();
+        if (cameraBackground == null)
+            cameraBackground = camera.gameObject.AddComponent<ARCameraBackground>();
+
         ARPlacementController placement = xrOrigin.GetComponent<ARPlacementController>();
         if (placement == null)
             placement = xrOrigin.gameObject.AddComponent<ARPlacementController>();
@@ -84,8 +95,8 @@ public static class MAMN60Setup
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Selection.activeGameObject = xrOrigin.gameObject;
-        Debug.Log("MAMN60 AR Whack-a-Mole scene created successfully at " + ScenePath);
+        Selection.activeGameObject = camera.gameObject;
+        Debug.Log("MAMN60 AR Whack-a-Mole scene created successfully at " + ScenePath + ". ARCameraManager and ARCameraBackground are present on Main Camera.");
     }
 
     [MenuItem("MAMN60/Configure iOS + ARKit")]
@@ -93,7 +104,7 @@ public static class MAMN60Setup
     {
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.dongjieru.mamn60.arwhackamole");
         PlayerSettings.iOS.cameraUsageDescription = "The camera is used to detect a table and place the AR Whack-a-Mole game.";
-        PlayerSettings.iOS.targetOSVersionString = "13.0";
+        PlayerSettings.iOS.targetOSVersionString = "15.0";
 
         var buildTargetSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.iOS);
         if (buildTargetSettings == null || buildTargetSettings.AssignedSettings == null)
@@ -110,7 +121,7 @@ public static class MAMN60Setup
         AssetDatabase.SaveAssets();
 
         if (assigned)
-            Debug.Log("ARKit loader enabled for iOS. Switch the active platform to iOS in Build Settings before building.");
+            Debug.Log("ARKit loader enabled for iOS. Switch the active platform to iOS in Build Profiles before building.");
         else
             Debug.LogWarning("Unity did not report a new ARKit assignment. Check Project Settings > XR Plug-in Management > iOS and make sure ARKit is enabled.");
     }
