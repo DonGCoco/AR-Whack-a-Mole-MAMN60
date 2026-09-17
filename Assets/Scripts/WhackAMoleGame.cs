@@ -10,6 +10,7 @@ public class WhackAMoleGame : MonoBehaviour
     private static readonly Color HoleColor = new Color(0.06f, 0.06f, 0.06f);
     private static readonly Color MoleColor = new Color(0.45f, 0.24f, 0.10f);
     private static readonly Color EyeColor = Color.white;
+    private static readonly Color PupilColor = new Color(0.03f, 0.03f, 0.03f);
 
     public int Score { get; private set; }
 
@@ -59,6 +60,7 @@ public class WhackAMoleGame : MonoBehaviour
         Material holeMaterial = MAMN60Materials.Create(HoleColor);
         Material moleMaterial = MAMN60Materials.Create(MoleColor);
         Material eyeMaterial = MAMN60Materials.Create(EyeColor);
+        Material pupilMaterial = MAMN60Materials.Create(PupilColor);
 
         CreatePrimitive(
             PrimitiveType.Cube,
@@ -78,10 +80,16 @@ public class WhackAMoleGame : MonoBehaviour
         };
 
         for (int i = 0; i < holePositions.Length; i++)
-            CreateHoleAndMole(i + 1, holePositions[i], holeMaterial, moleMaterial, eyeMaterial);
+            CreateHoleAndMole(i + 1, holePositions[i], holeMaterial, moleMaterial, eyeMaterial, pupilMaterial);
     }
 
-    private void CreateHoleAndMole(int index, Vector3 holePosition, Material holeMaterial, Material moleMaterial, Material eyeMaterial)
+    private void CreateHoleAndMole(
+        int index,
+        Vector3 holePosition,
+        Material holeMaterial,
+        Material moleMaterial,
+        Material eyeMaterial,
+        Material pupilMaterial)
     {
         GameObject hole = CreatePrimitive(
             PrimitiveType.Cylinder,
@@ -95,10 +103,17 @@ public class WhackAMoleGame : MonoBehaviour
         if (holeCollider != null)
             DestroyImmediateSafe(holeCollider);
 
-        GameObject mole = CreatePrimitive(
+        // Keep the mole root at scale 1 so facial features are not shrunk by the
+        // capsule's visual scale. The body mesh is a scaled child of this root.
+        GameObject moleRoot = new GameObject($"Mole {index}");
+        moleRoot.transform.SetParent(transform, false);
+        moleRoot.transform.localRotation = Quaternion.identity;
+        moleRoot.transform.localScale = Vector3.one;
+
+        GameObject body = CreatePrimitive(
             PrimitiveType.Capsule,
-            $"Mole {index}",
-            transform,
+            "Body",
+            moleRoot.transform,
             Vector3.zero,
             new Vector3(0.07f, 0.06f, 0.07f),
             moleMaterial);
@@ -106,35 +121,49 @@ public class WhackAMoleGame : MonoBehaviour
         Vector3 hidden = holePosition + new Vector3(0f, -0.095f, 0f);
         Vector3 visible = holePosition + new Vector3(0f, 0.055f, 0f);
 
-        MoleTarget target = mole.AddComponent<MoleTarget>();
+        MoleTarget target = moleRoot.AddComponent<MoleTarget>();
         target.Initialize(this, hidden, visible);
         moles.Add(target);
 
-        AddEyes(mole.transform, eyeMaterial);
+        AddFace(moleRoot.transform, eyeMaterial, pupilMaterial);
     }
 
-    private void AddEyes(Transform mole, Material eyeMaterial)
+    private void AddFace(Transform moleRoot, Material eyeMaterial, Material pupilMaterial)
     {
-        Vector3 leftEyePosition = new Vector3(-0.012f, 0.035f, 0.031f);
-        Vector3 rightEyePosition = new Vector3(0.012f, 0.035f, 0.031f);
-
-        CreateEye("Left Eye", mole, leftEyePosition, eyeMaterial);
-        CreateEye("Right Eye", mole, rightEyePosition, eyeMaterial);
+        CreateEye("Left Eye", moleRoot, new Vector3(-0.017f, 0.022f, 0.034f), eyeMaterial, pupilMaterial);
+        CreateEye("Right Eye", moleRoot, new Vector3(0.017f, 0.022f, 0.034f), eyeMaterial, pupilMaterial);
     }
 
-    private void CreateEye(string name, Transform parent, Vector3 localPosition, Material eyeMaterial)
+    private void CreateEye(
+        string name,
+        Transform parent,
+        Vector3 localPosition,
+        Material eyeMaterial,
+        Material pupilMaterial)
     {
         GameObject eye = CreatePrimitive(
             PrimitiveType.Sphere,
             name,
             parent,
             localPosition,
-            new Vector3(0.012f, 0.012f, 0.012f),
+            new Vector3(0.017f, 0.017f, 0.010f),
             eyeMaterial);
 
         Collider eyeCollider = eye.GetComponent<Collider>();
         if (eyeCollider != null)
             DestroyImmediateSafe(eyeCollider);
+
+        GameObject pupil = CreatePrimitive(
+            PrimitiveType.Sphere,
+            "Pupil",
+            parent,
+            localPosition + new Vector3(0f, 0f, 0.007f),
+            new Vector3(0.007f, 0.007f, 0.005f),
+            pupilMaterial);
+
+        Collider pupilCollider = pupil.GetComponent<Collider>();
+        if (pupilCollider != null)
+            DestroyImmediateSafe(pupilCollider);
     }
 
     private IEnumerator GameLoop()
