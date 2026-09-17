@@ -6,10 +6,10 @@ public class WhackAMoleGame : MonoBehaviour
 {
     private readonly List<MoleTarget> moles = new List<MoleTarget>();
 
-    private Material boardMaterial;
-    private Material holeMaterial;
-    private Material moleMaterial;
-    private Material eyeMaterial;
+    private static readonly Color BoardColor = new Color(0.20f, 0.55f, 0.28f);
+    private static readonly Color HoleColor = new Color(0.06f, 0.06f, 0.06f);
+    private static readonly Color MoleColor = new Color(0.45f, 0.24f, 0.10f);
+    private static readonly Color EyeColor = Color.white;
 
     public int Score { get; private set; }
 
@@ -41,18 +41,13 @@ public class WhackAMoleGame : MonoBehaviour
 
     private void BuildBoard()
     {
-        boardMaterial = CreateMaterial(new Color(0.20f, 0.55f, 0.28f));
-        holeMaterial = CreateMaterial(new Color(0.06f, 0.06f, 0.06f));
-        moleMaterial = CreateMaterial(new Color(0.45f, 0.24f, 0.10f));
-        eyeMaterial = CreateMaterial(Color.white);
-
-        GameObject board = CreatePrimitive(
+        CreatePrimitive(
             PrimitiveType.Cube,
             "Game Board",
             transform,
             new Vector3(0f, 0.01f, 0f),
             new Vector3(0.56f, 0.02f, 0.38f),
-            boardMaterial);
+            BoardColor);
 
         Vector3[] holePositions =
         {
@@ -75,7 +70,7 @@ public class WhackAMoleGame : MonoBehaviour
             transform,
             holePosition,
             new Vector3(0.065f, 0.004f, 0.065f),
-            holeMaterial);
+            HoleColor);
 
         Collider holeCollider = hole.GetComponent<Collider>();
         if (holeCollider != null)
@@ -87,7 +82,7 @@ public class WhackAMoleGame : MonoBehaviour
             transform,
             Vector3.zero,
             new Vector3(0.07f, 0.06f, 0.07f),
-            moleMaterial);
+            MoleColor);
 
         Vector3 hidden = holePosition + new Vector3(0f, -0.095f, 0f);
         Vector3 visible = holePosition + new Vector3(0f, 0.055f, 0f);
@@ -116,7 +111,7 @@ public class WhackAMoleGame : MonoBehaviour
             parent,
             localPosition,
             new Vector3(0.012f, 0.012f, 0.012f),
-            eyeMaterial);
+            EyeColor);
 
         Collider eyeCollider = eye.GetComponent<Collider>();
         if (eyeCollider != null)
@@ -146,7 +141,7 @@ public class WhackAMoleGame : MonoBehaviour
         Transform parent,
         Vector3 localPosition,
         Vector3 localScale,
-        Material material)
+        Color color)
     {
         GameObject gameObject = GameObject.CreatePrimitive(primitiveType);
         gameObject.name = objectName;
@@ -157,16 +152,8 @@ public class WhackAMoleGame : MonoBehaviour
 
         Renderer renderer = gameObject.GetComponent<Renderer>();
         if (renderer != null)
-            renderer.material = material;
+            renderer.material.color = color;
 
         return gameObject;
-    }
-
-    private static Material CreateMaterial(Color color)
-    {
-        Shader shader = Shader.Find("Standard");
-        Material material = new Material(shader);
-        material.color = color;
-        return material;
     }
 }
