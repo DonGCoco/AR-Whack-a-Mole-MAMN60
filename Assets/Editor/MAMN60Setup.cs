@@ -13,6 +13,7 @@ using UnityEngine.XR.ARSubsystems;
 public static class MAMN60Setup
 {
     private const string ScenePath = "Assets/Scenes/ARWhackAMole.unity";
+    private const string PreviewObjectName = "Whack-a-Mole Preview";
 
     [MenuItem("MAMN60/Setup AR Whack-a-Mole Scene")]
     public static void SetupScene()
@@ -64,9 +65,6 @@ public static class MAMN60Setup
 
         camera.tag = "MainCamera";
 
-        // Explicitly guarantee that the AR camera feed is requested and rendered.
-        // XR Origin (Mobile AR) normally creates these, but adding them here makes
-        // the generated scene robust across AR Foundation / Unity editor versions.
         ARCameraManager cameraManager = camera.GetComponent<ARCameraManager>();
         if (cameraManager == null)
             cameraManager = camera.gameObject.AddComponent<ARCameraManager>();
@@ -97,6 +95,34 @@ public static class MAMN60Setup
 
         Selection.activeGameObject = camera.gameObject;
         Debug.Log("MAMN60 AR Whack-a-Mole scene created successfully at " + ScenePath + ". ARCameraManager and ARCameraBackground are present on Main Camera.");
+    }
+
+    [MenuItem("MAMN60/Preview Whack-a-Mole Board")]
+    public static void PreviewBoard()
+    {
+        ClearPreview();
+
+        GameObject previewObject = new GameObject(PreviewObjectName);
+        Undo.RegisterCreatedObjectUndo(previewObject, "Create Whack-a-Mole Preview");
+        previewObject.transform.position = Vector3.zero;
+        previewObject.transform.rotation = Quaternion.identity;
+
+        WhackAMoleGame previewGame = previewObject.AddComponent<WhackAMoleGame>();
+        previewGame.BuildPreview();
+
+        Selection.activeGameObject = previewObject;
+        SceneView.lastActiveSceneView?.FrameSelected();
+        EditorSceneManager.MarkSceneDirty(previewObject.scene);
+
+        Debug.Log("Whack-a-Mole preview created at the world origin. Use MAMN60 > Clear Whack-a-Mole Preview when finished.");
+    }
+
+    [MenuItem("MAMN60/Clear Whack-a-Mole Preview")]
+    public static void ClearPreview()
+    {
+        GameObject preview = GameObject.Find(PreviewObjectName);
+        if (preview != null)
+            Object.DestroyImmediate(preview);
     }
 
     [MenuItem("MAMN60/Configure iOS + ARKit")]
