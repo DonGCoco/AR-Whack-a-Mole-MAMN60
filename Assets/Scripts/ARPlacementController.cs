@@ -139,7 +139,11 @@ public class ARPlacementController : MonoBehaviour
 
         Renderer renderer = reticle.GetComponent<Renderer>();
         if (renderer != null)
-            renderer.material.color = new Color(0.20f, 1.00f, 0.35f, 1.00f);
+        {
+            Material material = MAMN60Materials.Create(new Color(0.20f, 1.00f, 0.35f, 1.00f));
+            if (material != null)
+                renderer.sharedMaterial = material;
+        }
 
         reticle.SetActive(false);
     }
