@@ -20,6 +20,20 @@ public class WhackAMoleGame : MonoBehaviour
         StartCoroutine(GameLoop());
     }
 
+    public void BuildPreview()
+    {
+        Score = 0;
+        BuildBoard();
+
+        // Keep alternating moles above the holes so the Scene view clearly
+        // shows what the game will look like without needing AR tracking.
+        for (int i = 0; i < moles.Count; i++)
+        {
+            if (i % 2 == 0)
+                moles[i].ShowForPreview();
+        }
+    }
+
     public void TryHit(Vector2 screenPosition, Camera camera)
     {
         if (camera == null)
@@ -41,6 +55,8 @@ public class WhackAMoleGame : MonoBehaviour
 
     private void BuildBoard()
     {
+        moles.Clear();
+
         CreatePrimitive(
             PrimitiveType.Cube,
             "Game Board",
@@ -74,7 +90,7 @@ public class WhackAMoleGame : MonoBehaviour
 
         Collider holeCollider = hole.GetComponent<Collider>();
         if (holeCollider != null)
-            Destroy(holeCollider);
+            DestroyImmediateSafe(holeCollider);
 
         GameObject mole = CreatePrimitive(
             PrimitiveType.Capsule,
@@ -115,7 +131,7 @@ public class WhackAMoleGame : MonoBehaviour
 
         Collider eyeCollider = eye.GetComponent<Collider>();
         if (eyeCollider != null)
-            Destroy(eyeCollider);
+            DestroyImmediateSafe(eyeCollider);
     }
 
     private IEnumerator GameLoop()
@@ -155,5 +171,13 @@ public class WhackAMoleGame : MonoBehaviour
             renderer.material.color = color;
 
         return gameObject;
+    }
+
+    private static void DestroyImmediateSafe(Object obj)
+    {
+        if (Application.isPlaying)
+            Destroy(obj);
+        else
+            DestroyImmediate(obj);
     }
 }
