@@ -91,7 +91,7 @@ public class ARPlacementController : MonoBehaviour
             return;
 
         Pose pose = Hits[0].pose;
-        reticle.transform.SetPositionAndRotation(pose.position + pose.up * 0.002f, pose.rotation);
+        reticle.transform.SetPositionAndRotation(pose.position + pose.up * 0.003f, pose.rotation);
     }
 
     private void TryPlaceGame(Vector2 screenPosition)
@@ -131,16 +131,15 @@ public class ARPlacementController : MonoBehaviour
     {
         reticle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         reticle.name = "Placement Reticle";
-        reticle.transform.localScale = new Vector3(0.05f, 0.001f, 0.05f);
+        reticle.transform.localScale = new Vector3(0.075f, 0.0015f, 0.075f);
 
         Collider collider = reticle.GetComponent<Collider>();
         if (collider != null)
             Destroy(collider);
 
         Renderer renderer = reticle.GetComponent<Renderer>();
-        Material material = new Material(Shader.Find("Standard"));
-        material.color = new Color(0.25f, 1f, 0.45f, 0.75f);
-        renderer.material = material;
+        if (renderer != null)
+            renderer.material.color = new Color(0.20f, 1.00f, 0.35f, 1.00f);
 
         reticle.SetActive(false);
     }
@@ -183,13 +182,14 @@ public class ARPlacementController : MonoBehaviour
         EnsureStyles();
 
         float margin = Screen.width * 0.04f;
-        float topHeight = Screen.height * 0.11f;
+        float top = Screen.safeArea.y + Screen.height * 0.03f;
+        float topHeight = Screen.height * 0.10f;
 
         string message = game == null
-            ? "Scan a table, then tap to place the game"
+            ? "Scan a table, then tap the marker to place the game"
             : $"Score: {game.Score}";
 
-        GUI.Label(new Rect(margin, margin, Screen.width - margin * 2f, topHeight), message, labelStyle);
+        GUI.Label(new Rect(margin, top, Screen.width - margin * 2f, topHeight), message, labelStyle);
 
         if (game != null)
         {
