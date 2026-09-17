@@ -107,6 +107,10 @@ public static class MAMN60Setup
         previewObject.transform.position = Vector3.zero;
         previewObject.transform.rotation = Quaternion.identity;
 
+        // This object is editor-only visualisation. It may remain visible and even be
+        // saved in the scene, but Unity must never include it in an iOS build.
+        previewObject.hideFlags |= HideFlags.DontSaveInBuild;
+
         WhackAMoleGame previewGame = previewObject.AddComponent<WhackAMoleGame>();
         previewGame.BuildPreview();
 
@@ -114,7 +118,7 @@ public static class MAMN60Setup
         SceneView.lastActiveSceneView?.FrameSelected();
         EditorSceneManager.MarkSceneDirty(previewObject.scene);
 
-        Debug.Log("Whack-a-Mole preview created at the world origin. Use MAMN60 > Clear Whack-a-Mole Preview when finished.");
+        Debug.Log("Whack-a-Mole preview created at the world origin. It is excluded from player builds. Use MAMN60 > Clear Whack-a-Mole Preview when finished.");
     }
 
     [MenuItem("MAMN60/Clear Whack-a-Mole Preview")]
@@ -122,7 +126,12 @@ public static class MAMN60Setup
     {
         GameObject preview = GameObject.Find(PreviewObjectName);
         if (preview != null)
+        {
+            Scene scene = preview.scene;
             Object.DestroyImmediate(preview);
+            if (scene.IsValid())
+                EditorSceneManager.MarkSceneDirty(scene);
+        }
     }
 
     [MenuItem("MAMN60/Configure iOS + ARKit")]
