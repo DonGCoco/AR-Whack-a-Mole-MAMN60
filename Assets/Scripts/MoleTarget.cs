@@ -19,6 +19,12 @@ public class MoleTarget : MonoBehaviour
         IsActive = false;
     }
 
+    public void ShowForPreview()
+    {
+        transform.localPosition = visiblePosition;
+        IsActive = true;
+    }
+
     public void Pop(float visibleDuration)
     {
         if (animationRoutine != null)
