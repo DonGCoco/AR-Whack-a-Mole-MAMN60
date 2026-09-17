@@ -107,7 +107,12 @@ public class ARPlacementController : MonoBehaviour
         Vector3 forward = Vector3.ProjectOnPlane(arCamera.transform.forward, hitPose.up);
         Quaternion rotation = hitPose.rotation;
         if (forward.sqrMagnitude > 0.001f)
-            rotation = Quaternion.LookRotation(forward.normalized, hitPose.up);
+        {
+            // The mole faces are built on local +Z. Camera.forward points from the
+            // camera toward the board, so use the opposite direction to make +Z
+            // point back toward the user/camera.
+            rotation = Quaternion.LookRotation(-forward.normalized, hitPose.up);
+        }
 
         GameObject gameObject = new GameObject("AR Whack-a-Mole Game");
         gameObject.transform.SetPositionAndRotation(hitPose.position, rotation);
